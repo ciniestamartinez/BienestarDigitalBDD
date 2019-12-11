@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\User;
-
 use Illuminate\Http\Request;
+use App\User;
+use App\Helpers\Token;
 
 class UserController extends Controller
 {
@@ -38,6 +38,39 @@ class UserController extends Controller
         $user = new User();
         $user->create($request); 
         var_dump('añadido');
+
+        $token = new Token($user->email);
+        $tokenEncode = $token->encode();
+        
+        return response()->json([
+            "token" => $tokenEncode
+        ],200);
+    }
+
+    public function login(Request $request){
+        //Buscar el email de los usuarios de la BDD
+        $user = User::where('email', $request->email)->get();
+
+        //Comprobar que email y password de user son iguales
+            $data = ['email' => $request->email];
+
+            $user = User::where($data)->first();
+
+            if($user->password == $request->password)
+            {
+                //Si son iguales codifico el token
+                $token = new Token($data);
+                $tokenEncode = $token->encode();
+
+                //Devolver la respuesta en formato JSON con el token y código 200
+                return response()->json([
+                "token" => $tokenEncode
+                ],200);
+                var_dump('Login correcto');
+            }
+            return response()->json([
+            "error" => "Usuario incorrecto"
+            ],401);
     }
 
     /**
