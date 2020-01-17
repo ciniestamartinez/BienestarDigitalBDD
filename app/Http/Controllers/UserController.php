@@ -7,7 +7,7 @@ use App\Helpers\Token;
 
 class UserController extends Controller
 {
-    /**
+    /** 
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -36,15 +36,23 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $user = new User();
-        $user->create($request); 
-        var_dump('añadido');
+        if (!$user->userExists($request->email)){
+            $user->register($request);
+            $data_token = [
+                "email" => $user->email,
+            ];
+            $token = new Token($data_token);
+            
+            $tokenEncoded = $token->encode();
 
-        $token = new Token($user->email);
-        $tokenEncode = $token->encode();
-        
-        return response()->json([
-            "token" => $tokenEncode
-        ],200);
+            return response()->json([
+                "token" => $tokenEncoded
+            ], 200);
+        }else{
+            return response()->json([
+                "Error" => "Email ya existente"
+            ],401);
+        }
     }
 
     public function login(Request $request){
@@ -73,6 +81,43 @@ class UserController extends Controller
             ],401);
     }
 
+    public function resetPassword (Request $request){
+        $user = User::where('email',$request->email)->first();  
+        if (isset($user)) {   
+            $newPassword = self::randomPassword();
+            self::sendEmail($user->email,$newPassword);
+            
+                $user->password = $newPassword;
+                $user->update();
+            
+            return response()->json([
+                "Operación con éxito" => "Se ha reestablecido su contraseña, revise su correo electrónico."
+                ],200);
+        }else{
+            return response()->json([
+                "Error" => "El email no está registrado en la aplicación"
+                ],401);
+        }
+    }
+
+    public function sendEmail ($email, $newPassword){
+        $para      = $email;
+        $titulo    = 'Recuperar contraseña de iFoodie';
+        $mensaje   = 'Se ha establecido "'.$newPassword.'" como su nueva contraseña.';
+        mail($para, $titulo, $mensaje);
+    }
+    
+    public function randomPassword() {
+        $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $pass = array(); //remember to declare $pass as an array
+        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+        for ($i = 0; $i < 10; $i++) {
+            $n = rand(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+        return implode($pass); //turn the array into a string
+    }
+    
     /**
      * Display the specified resource.
      *
