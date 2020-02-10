@@ -7,7 +7,7 @@ use DB;
 
 class Usage extends Model
 {
-    protected $table = 'app_usage';
+    protected $table = 'usage';
     protected $fillable = ['day','useTime','location','user_id','application_id'];
     
     public function register($day, $useTime, $location, $user_id, $application_id)
@@ -21,9 +21,9 @@ class Usage extends Model
         $usage->save();
     }
 
-    public function getUsage ($user_id)
+    public function getUsage($user_id)
     {
-        $usages = DB::table('app_usage')->select('user_id','application_id','day',DB::raw("SUM(useTime) as totalTime"))
+        $usages = DB::table('app_usage')->select('user_id','application_id','day', DB::raw("SUM(useTime) as totalTime"))
                                         ->from('app_usage')
                                         ->where('user_id', $user_id)
                                         ->groupBy('user_id','application_id','day')

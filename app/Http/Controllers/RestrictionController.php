@@ -38,7 +38,7 @@ class RestrictionController extends Controller
     public function store(Request $request)
     {
         $restriction = new Restriction();
-        $application = Application::where('name',$request->name)->first();
+        $application = Application::where('name', $request->name)->first();
 
         if (isset($application)) {    
             $email = $request->data_token->email;
@@ -49,7 +49,7 @@ class RestrictionController extends Controller
                     if (is_null($request->start_hour_restriction) || is_null($request->finish_hour_restriction)) {
                         return response()->json(["Error" => "Debe de haber alguna restriction"]);   
                     }else{     
-                        $restriction->new_Restriction($request,$user->id,$application->id);
+                        $restriction->new_Restriction($request, $user->id, $application->id);
                         return response()->json(["Success" => "Se ha añadido la restriction"]);
                     }
                 }else{

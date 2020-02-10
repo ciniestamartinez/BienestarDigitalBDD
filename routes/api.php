@@ -25,7 +25,7 @@ Route::group(['middleware' => ['auth']], function (){
     Route::apiResource('users','UserController');
     Route::get('show','UserController@show');
     Route::post('changePassword','UserController@changePassword');
-    Route::apiResource('application','ApplicationController');
+    Route::apiResource('application','AppController');
     Route::apiResource('restriction','RestrictionController');
     Route::apiResource('usage','UsageController');
     Route::get('show','UsageController@show');  

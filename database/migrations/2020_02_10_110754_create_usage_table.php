@@ -24,7 +24,7 @@ class CreateUsageTable extends Migration
             $table->Integer('application_id')->unsigned();
             
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('application_id')->references('id')->on('application')->onDelete('cascade');
+            $table->foreign('application_id')->references('id')->on('applications')->onDelete('cascade');
 
             $table->timestamps();
         });

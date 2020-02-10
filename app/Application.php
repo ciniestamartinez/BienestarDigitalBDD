@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 
 class Application extends Model
 {
-    protected $table = 'application';
+    protected $table = 'applications';
     protected $fillable = ['name','icon'];
     
     public function new_application(Request $request)
     {
-        $application = new application;
+        $application = new Application;
         $application->name = $request->name;
         $application->icon = $request->icon;
         $application->save();
