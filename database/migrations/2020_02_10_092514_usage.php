@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAppUsageTable extends Migration
+class CreateUsageTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateAppUsageTable extends Migration
      */
     public function up()
     {
-        Schema::create('_app_usage', function (Blueprint $table) {
+        Schema::create('usage', function (Blueprint $table) {
             $table->increments('id');
 
             $table->date('day');
@@ -37,6 +37,6 @@ class CreateAppUsageTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('_app_usage');
+        Schema::dropIfExists('usage');
     }
 }
