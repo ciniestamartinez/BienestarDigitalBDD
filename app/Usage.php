@@ -10,7 +10,7 @@ class Usage extends Model
     protected $table = 'app_usage';
     protected $fillable = ['day','useTime','location','user_id','application_id'];
     
-    public function register($day,$useTime,$location,$user_id,$application_id)
+    public function register($day, $useTime, $location, $user_id, $application_id)
     {
         $usage = new usage;
         $usage->day = $day;
