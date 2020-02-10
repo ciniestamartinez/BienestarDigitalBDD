@@ -15,7 +15,29 @@ class User extends Model
         $user->surname = $request->surname;
         $user->username = $request->username;
         $user->email = $request->email;
-        $user->password = $request->password;
+        $user->password = encrypt($request->password);
         $user->save();
+    }
+
+    public function emailExists($email){
+        $users = self::where('email',$email)->get();
+        
+        foreach ($users as $key => $value) {
+            if($value->email == $email){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function usernameExists($username){
+        $users = self::where('username',$username)->get();
+        
+        foreach ($users as $key => $value) {
+            if($value->username == $username){
+                return true;
+            }
+        }
+        return false;
     }
 }

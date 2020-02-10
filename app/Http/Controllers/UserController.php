@@ -36,22 +36,20 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $user = new User();
-        if (!$user->userExists($request->email)){
-            $user->register($request);
+        if (!$user->emailExists($request->email) && !$user->usernameExists($request->username)){
+            $user->create($request);
             $data_token = [
                 "email" => $user->email,
             ];
             $token = new Token($data_token);
             
             $tokenEncoded = $token->encode();
-
             return response()->json([
                 "token" => $tokenEncoded
             ], 200);
         }else{
-            return response()->json([
-                "Error" => "Email ya existente"
-            ],401);
+            return response()->json(["Error" => "No se pueden crear usuarios con el mismo email o nombre de usuario"]
+            , 401);
         }
     }
 
@@ -64,7 +62,7 @@ class UserController extends Controller
 
             $user = User::where($data)->first();
 
-            if($user->password == $request->password)
+            if(decrypt($user->password) == $request->password)
             {
                 //Si son iguales codifico el token
                 $token = new Token($data);
@@ -100,10 +98,33 @@ class UserController extends Controller
         }
     }
 
+    public function changePassword (Request $request){
+        $email = $request->data_token->email;
+        $user = User::where('email', $email)->first();
+        
+        if (isset($user)) {
+            $user->password = decrypt($user->password);
+            $newPassword = $request->password;
+            if ($newPassword != $user->password){
+                $user->password = encrypt($newPassword);
+                $user->update();
+                return response()->json([
+                    "Operación con éxito" => "Se ha reestablecido su contraseña."
+                    ],200);
+            }else{
+            return response()->json([
+                "Error" => "La contraseña es la misma que la anterior"
+                ],401);
+            }
+        }else{
+            return response()->json(["Error" => "El ususario no existe"], 400);
+        } 
+    }
+
     public function sendEmail ($email, $newPassword){
         $para      = $email;
-        $titulo    = 'Recuperar contraseña de iFoodie';
-        $mensaje   = 'Se ha establecido "'.$newPassword.'" como su nueva contraseña.';
+        $titulo    = 'Recuperar contraseña de Bienestar Digital';
+        $mensaje   = 'Se ha establecido "'.$newPassword.'" como su nueva contraseña. Podrá cambiarla si quiere por la que desee desde la pantalla de su perfil.';
         mail($para, $titulo, $mensaje);
     }
     
@@ -124,9 +145,23 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $email = $request->data_token->email;
+        $user = User::where('email', $email)->first();
+        
+        if(isset($user)){
+            $user->password = decrypt($user->password);
+            return response()->json([
+                'name' => $user->name, 
+                'surname'=> $user->surname, 
+                'username' => $user->username , 
+                'email' => $user->email, 
+                'password' => $user->password
+            ], 200);
+        }else{
+            return response()->json(["Error" => "El usuario no existe"], 401);
+        }
     }
 
     /**
